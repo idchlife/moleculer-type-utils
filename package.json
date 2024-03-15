@@ -1,0 +1,17 @@
+{
+  "name": "moleculer-type-utils",
+  "version": "0.1.0",
+  "description": "Type Utilities for Moleculer framework to help working with it in TypeScript",
+  "main": "index.ts",
+  "repository": "https://github.com/idchlife/moleculer-type-utils",
+  "author": "idchlife",
+  "license": "MIT",
+  "scripts": {
+    "test": "tsd"
+  },
+  "devDependencies": {
+    "moleculer": "^0.14.32",
+    "tsd": "^0.30.7",
+    "typescript": "^5.4.2"
+  }
+}

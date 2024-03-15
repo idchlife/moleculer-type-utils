@@ -1,0 +1,1 @@
+export { BetterTypedServiceBroker } from "./types/broker";
