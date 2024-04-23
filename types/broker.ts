@@ -15,7 +15,7 @@ type ActionMethods<TServiceSchema extends ServiceSchema> =
   keyof ActionsWithStringKeys<TServiceSchema>;
 
 type FullServiceActionName<TServiceSchema extends ServiceSchema, TActionName extends ActionMethods<TServiceSchema>> =
-  `${TServiceSchema["name"]}.${TActionName}`;
+  (TServiceSchema["version"] extends string | number ? `v${TServiceSchema["version"]}.${TServiceSchema["name"]}.${TActionName}` : `${TServiceSchema["name"]}.${TActionName}`);
 
 type ServiceBrokerCallDefinitionForActionInfo<TServiceSchema extends ServiceSchema, TActionName extends ActionMethods<TServiceSchema>> =
   TServiceSchema["actions"][TActionName] extends (ctx: Context<infer P, infer M, infer L>) => infer R
@@ -133,14 +133,3 @@ type BrokerCallFunctionDefinition<TFullNameDefinitions extends BrokerCallDefinit
         )
     )
   ) => PromisifyIfNotPromise<TFullNameDefinitions[TAction]["returnType"]>;
-
-
-// type FuncTypeDef = 
-//   <TAction extends string | undefined>(
-//     a: TAction,
-//     ...args: IsOptionalType<TAction> extends true ? [params?: string, opts?: boolean] : [params: number, opts: boolean]
-//   ) => void;
-
-// const funcTest = {} as FuncTypeDef;
-
-// funcTest({});
