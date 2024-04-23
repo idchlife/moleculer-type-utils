@@ -1,14 +1,15 @@
 import { ServiceSchema, Context } from "moleculer";
 
 export default {
-  name: "service:beta" as const,
+  name: "service:gamma" as const,
+  version: 3 as const,
   actions: {
-    betaAction(ctx: Context<{ version: string }>) {
+    gammaAction(ctx: Context<{ version: string }>) {
       return {
         something: 34
       };
     },
-    betaActionWithObjectDefinition: {
+    gammaActionWithObjectDefinition: {
       handler(ctx: Context<{ myParam: number }, { log: boolean }>) {
         return { name: "object" };
       }

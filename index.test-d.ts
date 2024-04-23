@@ -6,6 +6,7 @@ import { GenericObject } from "moleculer";
 type ServiceDefinitions = [
   typeof import("./tests/test-data/moleculer-services/service-alpha").default,
   typeof import("./tests/test-data/moleculer-services/service-beta").default,
+  typeof import("./tests/test-data/moleculer-services/service-gamma").default,
 ];
 
 // Testing broker
@@ -28,6 +29,12 @@ expectType<Promise<{ something: number }>>(broker.call("service:beta.betaAction"
 // Handler inside object
 
 expectType<Promise<{ name: string }>>(broker.call("service:beta.betaActionWithObjectDefinition", { myParam: 3 }, { meta: { log: true } }));
+
+// with Version
+
+expectType<Promise<{ something: number }>>(broker.call("v3.service:gamma.gammaAction", { version: "third" }));
+
+expectType<Promise<{ name: string }>>(broker.call("v3.service:gamma.gammaActionWithObjectDefinition", { myParam: 3 }, { meta: { log: true } }));
 
 // Errors
 expectError(broker.call("service:alpha.alphaAction", { "name": 2 } ));
