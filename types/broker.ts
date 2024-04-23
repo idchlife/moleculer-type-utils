@@ -3,8 +3,9 @@ import {
   CallingOptions,
   Context,
 } from "moleculer";
+import type { EmptyObject, PromisifyIfNotPromise, ServiceSchemaTuple, TupleToUnion, UnionOfValuesOfObject, UnionToIntersection } from "./shared";
 
-export type BetterTypedServiceBroker<TSchemaTuple extends ServiceSchema[]> =
+export type BetterTypedServiceBroker<TSchemaTuple extends ServiceSchemaTuple> =
   BrokerDefinitionFromSchemaTuple<TSchemaTuple>;
 
 type ActionsWithStringKeys<TServiceSchema extends ServiceSchema> = {
@@ -49,28 +50,22 @@ type ServiceBrokerCallDefinitionForActionInfo<TServiceSchema extends ServiceSche
       :
       never;
 
-type BrokerDefinitionFromSchemaTuple<TSchemaTuple extends ServiceSchema[]> = {
-  call: BrokerCallFunctionDefinition<
-    IntersectionOfFullDefinitions<TSchemaTuple> extends BrokerCallDefinitionsForServiceWithFullName<ServiceSchema> ? IntersectionOfFullDefinitions<TSchemaTuple> : never
-  >
+type BrokerDefinitionFromSchemaTuple<TSchemaTuple extends ServiceSchemaTuple> = {
+  call: BrokerCallFunctionDefinitionFromSchemaTuple<TSchemaTuple>
 }
   
-type TupleOfFullDefinitions<TSchemaTuple extends ServiceSchema[]> =
+type TupleOfFullDefinitions<TSchemaTuple extends ServiceSchemaTuple> =
   TupleOfSchemasToTupleOfFullDefinitions<TSchemaTuple>;
 
-type UnionOfFullDefinitions<TSchemaTuple extends ServiceSchema[]> =
+type UnionOfFullDefinitions<TSchemaTuple extends ServiceSchemaTuple> =
   TupleToUnion<TupleOfFullDefinitions<TSchemaTuple>>;
 
-type IntersectionOfFullDefinitions<TSchemaTuple extends ServiceSchema[]> =
+type IntersectionOfFullDefinitions<TSchemaTuple extends ServiceSchemaTuple> =
   UnionToIntersection<UnionOfFullDefinitions<TSchemaTuple>>;
 
-type TupleOfSchemasToTupleOfFullDefinitions<TSchemaTuple extends ServiceSchema[]> = {
+type TupleOfSchemasToTupleOfFullDefinitions<TSchemaTuple extends ServiceSchemaTuple> = {
   [key in keyof TSchemaTuple]: BrokerCallDefinitionsForServiceWithFullName<TSchemaTuple[key]>
 };
-
-type TupleToUnion<TTuple extends unknown[]> = TTuple[number];
-
-type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never;
 
 type BrokerCallDefinitionsForService<TServiceSchema extends ServiceSchema> = {
   [key in keyof ActionsWithStringKeys<TServiceSchema>]: ServiceBrokerCallDefinitionForActionInfo<TServiceSchema, key>
@@ -79,9 +74,6 @@ type BrokerCallDefinitionsForService<TServiceSchema extends ServiceSchema> = {
 type TransformBrokerCallDefinitionsWithFullName<TDefinitionUnion extends { "actionName": string }> = {
   [key in TDefinitionUnion["actionName"]]: TDefinitionUnion extends { "actionName": key } ? TDefinitionUnion : never
 }
-
-type UnionOfValuesOfObject<TObject extends { [key in keyof TObject]: unknown }> =
-  TObject[keyof TObject];
 
 type BrokerCallDefinitionsForServiceWithFullName<TServiceSchema extends ServiceSchema> =
   TransformBrokerCallDefinitionsWithFullName<UnionOfValuesOfObject<BrokerCallDefinitionsForService<TServiceSchema>>>;
@@ -96,14 +88,13 @@ type BrokerCallDefinitionsForServiceWithFullName<TServiceSchema extends ServiceS
 //     } & CallingOptions
 //   ) => TFullNameDefinitions[TAction]["returnType"];
 
-type EmptyObject = {
-  [key in any]: never
-};
-
-type PromisifyIfNotPromise<T> = T extends Promise<unknown> ? T : Promise<T>;
 
 type IsOptionalType<T> = T extends null | undefined | EmptyObject ? true : false;
 type IsRequiredType<T> = T extends string | number | boolean | object ? true : false;
+
+export type BrokerCallFunctionDefinitionFromSchemaTuple<TSchemaTuple extends ServiceSchemaTuple> = BrokerCallFunctionDefinition<
+  IntersectionOfFullDefinitions<TSchemaTuple> extends BrokerCallDefinitionsForServiceWithFullName<ServiceSchema> ? IntersectionOfFullDefinitions<TSchemaTuple> : never
+>;
 
 type BrokerCallFunctionDefinition<TFullNameDefinitions extends BrokerCallDefinitionsForServiceWithFullName<TServiceSchema>, TServiceSchema extends ServiceSchema = ServiceSchema> =
   <TAction extends keyof TFullNameDefinitions>(

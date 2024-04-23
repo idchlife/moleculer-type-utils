@@ -1,5 +1,10 @@
 ## Moleculer Type Utils
 
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/idchlife/moleculer-type-utils/yarn.js.yml)
+
+![NPM Version](https://img.shields.io/npm/v/moleculer-type-utils)
+
+
 ### Table of Contents
 
 - [Intro Promo](#intro-promo)
