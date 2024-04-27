@@ -1,4 +1,4 @@
-import type { ServiceSchema } from "moleculer"
+import type { GenericObject, ServiceSchema } from "moleculer"
 
 export type ServiceSchemaTuple = ServiceSchema[];
 
@@ -14,3 +14,9 @@ export type PromisifyIfNotPromise<T> = T extends Promise<unknown> ? T : Promise<
 export type EmptyObject = {
   [key in any]: never
 };
+
+export interface ContextLike<P = unknown, M extends object = {}, L = GenericObject> {
+  params: P
+  meta: M
+  locals: L
+}

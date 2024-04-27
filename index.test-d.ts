@@ -48,5 +48,5 @@ type TestContext<P = unknown, M extends object = {}, L = GenericObject> = Better
 
 const ctx = {} as TestContext;
 
-
-expectType<Promise<string>>(broker.call("service:alpha.alphaAction", { "name": "hello"} ));
+expectType<Promise<string>>(ctx.call("service:alpha.alphaAction", { "name": "hello"} ));
+expectType<Promise<string>>(ctx.broker.call("service:alpha.alphaAction", { "name": "hello"} ));

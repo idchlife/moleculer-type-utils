@@ -12,6 +12,7 @@
 - [Why](#why)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Changelog](#changelog)
 
 ### Intro Promo
 
@@ -58,12 +59,15 @@ similar with other package managers like pnpm, bun and others I don't know but t
 
 Ok here is the receipt:
 
+#### Typed Broker
+
 1) Write service as usual with 1 additional step:
   ```typescript
     import { ServiceSchema, Context } from "moleculer";
 
     export default {
       name: "service:alpha" as const, // IMPORTANT STEP : always add `as const` to the name
+      version: 2 as const, // OPTIONAL: ONLY if you are using versions in services, always add `as const` too.
       actions: {
         alphaAction(ctx: Context<{ name: string }>) {
           return "kek";
@@ -107,6 +111,12 @@ Ok here is the receipt:
           typeof import("./my-services/service-beta").default,
         ];
 
+        // Alternate way. Original may look too obnoxious for some people :D
+        // import ServiceAlpha from "./my-services/service-alpha";
+        // import ServiceBeta from "./my-services/service-beta";
+        // type ServiceDefinitions = [typeof ServiceAlpha, typeof ServiceBeta];
+
+
         type MyBroker = BetterTypedServiceBroker<ServiceDefinitions>;
       ```
 
@@ -120,10 +130,91 @@ Ok here is the receipt:
       ```typescript
         const result = await (broker as MyBroker).call("service.actionName", ..., ...);
         // broker will help with params and meta if they are required by your action.
+
+
+        // Example with using versioned service
+        const result = await (broker as MyBroker).call("v2.service.actionName", ..., ...);
       ```
+
+#### Typed Context
+
+  Typed Context is a bit tricky compared to broker, because
+  context has generics. So to leave original functionality
+  of Context intact, we need to do like this (in `types/my-context.ts` for example):
+
+  ```typescript
+    // We need this for default GenericObject generic
+    import { GenericObject } from "moleculer";
+    import { BetterTypedContext } from "moleculer-type-utils";
+
+    // As in Typed Broker manual step 3, you need to obtain your service definitions.
+
+    type TestContext<P = unknown, M extends object = {}, L = GenericObject> = BetterTypedContext<ServiceDefinitions, P, M, L>;
+
+  ```
+
+  Use it like this in your services:
+
+  ```typescript
+    // Assuming this code inside service action.
+
+    const result = await (ctx as TestContext).call("service.actionName", ..., ...);
+
+    // Or if you want to use only typed context.
+
+    const myCtx = ctx as TestContext<YourParams, YourMeta>;
+
+    // After passing generics you have typed params, meta
+    myCtx.params.myParam;
+
+    await myCtx.call("service.actionName", ..., ...);
+  ```
+
+#### Typed Context as argument type in service definition (currently NOT POSSIBLE)
+
+  The IDEAL easy way to use typed context, of course, would be this:
+
+  ```typescript
+    export default {
+      name: "service:delta" as const,
+      actions: {
+        deltaAction(ctx: TypedContext<{ version: string }>) {
+          
+          // A man can dream that this would work one day...
+          ctx.call("myAnotherService.actionName", { params: 2 }, { user: 3 });
+
+          return {
+            something: 34
+          };
+        },
+        deltaActionWithObjectDefinition: {
+          handler(ctx: TypedContext<{ myParam: number }, { log: boolean }>) {
+            return { name: "object" };
+          }
+        }
+      }
+    };
+  ```
+
+  With code like this we would have typed context at the tip of out fingers. 
+
+  `THE PROBLEM`. Why we still need to `const typedBroker = broker as TypedBroker;`
+
+  Circular reference in TypeScript.
+  We are facing the problem, when `TypedContext` would consume definition
+  of services, which are using... `TypedContext` as argument. Well, this is a circular
+  reference and currently I am working on an easy way to overcome this problem
+  and make it easier to use typed context directly as argument type.
+  Maybe in future updates it would be possible.
+
 
 ### Changelog
 
+#### [0.2.0] - 2024-04-27
+
+- Typed context (instructions updated how to use it)
+- Support for service versions (if version is defined in service definition). Thanks https://github.com/adelisle for PR!
+
 #### [0.1.0] - 2024-03-15
 
-Initial repo. Features type for broker, that helps with action typings
+- Initial repo. Features type for broker, that helps with action typings

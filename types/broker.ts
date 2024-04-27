@@ -3,7 +3,14 @@ import {
   CallingOptions,
   Context,
 } from "moleculer";
-import type { EmptyObject, PromisifyIfNotPromise, ServiceSchemaTuple, TupleToUnion, UnionOfValuesOfObject, UnionToIntersection } from "./shared";
+import type {
+  EmptyObject,
+  PromisifyIfNotPromise,
+  ServiceSchemaTuple,
+  TupleToUnion,
+  UnionOfValuesOfObject,
+  UnionToIntersection,
+} from "./shared";
 
 export type BetterTypedServiceBroker<TSchemaTuple extends ServiceSchemaTuple> =
   BrokerDefinitionFromSchemaTuple<TSchemaTuple>;
@@ -77,17 +84,6 @@ type TransformBrokerCallDefinitionsWithFullName<TDefinitionUnion extends { "acti
 
 type BrokerCallDefinitionsForServiceWithFullName<TServiceSchema extends ServiceSchema> =
   TransformBrokerCallDefinitionsWithFullName<UnionOfValuesOfObject<BrokerCallDefinitionsForService<TServiceSchema>>>;
-
-// BACKUP
-// type BrokerCallFunctionDefinition<TFullNameDefinitions extends BrokerCallDefinitionsForServiceWithFullName<TServiceSchema>, TServiceSchema extends ServiceSchema = ServiceSchema> =
-//   <TAction extends keyof TFullNameDefinitions>(
-//     actionName: TAction,
-//     params?: TFullNameDefinitions[TAction]["params"],
-//     opts?: {
-//       meta: TFullNameDefinitions[TAction]["meta"]
-//     } & CallingOptions
-//   ) => TFullNameDefinitions[TAction]["returnType"];
-
 
 type IsOptionalType<T> = T extends null | undefined | EmptyObject ? true : false;
 type IsRequiredType<T> = T extends string | number | boolean | object ? true : false;
